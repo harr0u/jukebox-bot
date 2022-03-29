@@ -25,6 +25,7 @@ def main() -> None:
 
             song_features = spotifyFacade.get_song_features(spotify_id)
             telegram_id = ''
+            telegram_name = ''
 
             domain_song = UserSong.fromRawSpotifyData(song, song_features, telegram_id)
 
