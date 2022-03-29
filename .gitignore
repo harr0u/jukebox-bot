@@ -1,0 +1,8 @@
+**/env
+**/.vscode
+**/__pycache__
+.cache
+jukebox.sqbpro
+jukebox.sqlite
+config.json
+headers_auth.json
