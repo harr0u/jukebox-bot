@@ -1,0 +1,8 @@
+spec:
+  name: jukebox-bot
+  services:
+  - environment_slug: python
+    git:
+      branch: main
+      repo_clone_url: https://github.com/harr0u/jukebox-bot.git
+    name: jukebox-bot
