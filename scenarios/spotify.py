@@ -36,20 +36,22 @@ def SpotifyLinkScenario(spotifyFacade: SpotifyFacade, user_songs_repository: Use
         return response
 
     def callback(update: Update, context: CallbackContext) -> None:
-        spotify_id = update.message.text.split('track/')[-1].split('?')[0]
+        try:
+            spotify_id = update.message.text.split('track/')[-1].split('?')[0]
 
-        # TODO: somewhere else
-        spotify_song = spotifyFacade.get_song_by_id(spotify_id)
-        song_features: dict = spotifyFacade.get_song_features(spotify_id)
+            # TODO: somewhere else
+            spotify_song = spotifyFacade.get_song_by_id(spotify_id)
+            song_features: dict = spotifyFacade.get_song_features(spotify_id)
 
-        telegram_id = update.message.from_user.id if update.message.forward_from is None else update.message.forward_from.id
-        telegram_name = update.message.from_user.full_name if update.message.forward_from is None else update.message.forward_from.full_name
-        song = UserSong.fromRawSpotifyData(spotify_song, song_features, telegram_id, telegram_name)
-        user_songs_repository.insert_song(song)
+            telegram_id = update.message.from_user.id if update.message.forward_from is None else update.message.forward_from.id
+            telegram_name = update.message.from_user.full_name if update.message.forward_from is None else update.message.forward_from.full_name
+            song = UserSong.fromRawSpotifyData(spotify_song, song_features, telegram_id, telegram_name)
+            user_songs_repository.insert_song(song)
 
-        response = glue_response(song, song_features, spotify_song)
-        update.message.reply_text(response, parse_mode=ParseMode.HTML)
-
+            response = glue_response(song, song_features, spotify_song)
+            update.message.reply_text(response, parse_mode=ParseMode.HTML)
+        except Exception:
+            return
 
 
     return callback

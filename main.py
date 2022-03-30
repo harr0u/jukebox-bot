@@ -35,13 +35,12 @@ def album_image(spotifyFacade: SpotifyFacade):
         album = None
         try:
           album = spotifyFacade.searchAlbums(album_name, limit=1)[0]
-        except IndexError:
-          return update.message.reply_text("Ooops...")
-
+        except Exception:
+          return
         try:
           update.message.reply_text('Take a look at album with similar name\n' + album['images'][0]['url'])
-        except IndexError:
-          return update.message.reply_text("Ooops...")
+        except Exception:
+          return
     return callback
 
 
@@ -57,7 +56,6 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help_command))
     dispatcher.add_handler(MessageHandler(Filters.text & Filters.entity(MessageEntity.URL) & SpotifyLinkFilter(), SpotifyLinkScenario(spotifyFacade, user_songs_repository)))
-    dispatcher.add_handler(MessageHandler(Filters.text, album_image(spotifyFacade)))
 
     updater.start_polling()
     updater.idle()

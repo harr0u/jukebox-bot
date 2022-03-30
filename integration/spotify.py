@@ -15,8 +15,11 @@ class SpotifyFacade:
     def searchAlbums(self, q: str, *args, **kwargs):
         limit = kwargs.get('limit', 20)
 
-        results = self.sp.search(self, q=q, limit=limit, type="album")
-        return [album for album in results['albums']['items']]
+        try:
+          results = self.sp.search(self, q=q, limit=limit, type="album")
+          return [album for album in results['albums']['items']]
+        except Exception:
+          return
     
     def search_songs(self, q: str, *args, **kwargs):
         limit = kwargs.get('limit', 20)
