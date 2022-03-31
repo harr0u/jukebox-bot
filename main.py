@@ -49,7 +49,7 @@ def main() -> None:
     updater = Updater(config.telegram_token)
     
     user_songs_repository = None
-    if (true):
+    if (True):
         user_songs_repository = UserSongsRepository(logger, user=config.user, dbname=config.dbname,
             password=config.password, host=config.host, port=config.port)
     else:
