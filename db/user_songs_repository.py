@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from logging import Logger
 import sqlite3
+import psycopg2
 from sqlite3 import Error
 from sqlite3 import Connection
 
@@ -30,9 +31,19 @@ class UserSong:
         )
 
 class UserSongsRepository:
-    def __init__(self, path: str, logger: Logger) -> None:
+    def __init__(self, logger: Logger, **kwargs) -> None:
+        pass
+
+    def setup_connection(self, *args, **kwargs) -> None:
+        pass
+    
+    def insert_song(self, song: UserSong, no_commit: bool = False) -> None:
+        pass
+
+class UserSongsRepositorySqlite(UserSongsRepository):
+    def __init__(self, logger: Logger, **kwargs) -> None:
         self.logger = logger
-        self.path = path
+        self.path = kwargs.get('path', "jukebox.sqlite")
         self.setup_connection()
 
     def setup_connection(self) -> None:
@@ -64,3 +75,43 @@ class UserSongsRepository:
         finally:
             cur.close()
 
+class UserSongsRepositoryPostgres(UserSongsRepository):
+    def __init__(self, logger: Logger, **kwargs) -> None:
+        self.logger = logger
+        self.dbname = kwargs.get('dbname')
+        self.user = kwargs.get('user')
+        self.password = kwargs.get('password')
+        self.host = kwargs.get('host')
+        self.port = kwargs.get('port')
+        self.setup_connection()
+
+    def setup_psql_connection(self) -> None:
+        connection = None
+        try:
+            connection = psycopg2.connect(dbname=self.dbname, user=self.user,
+                password=self.password, host=self.host, port=self.port)
+            self.logger.log(1, "Connection to PostgresSQL DB successful")
+        except Error as e:
+            self.logger.error(f"The error '{e}' occurred")
+
+        self.connection = connection
+
+
+    def insert_song(self, song: UserSong, no_commit: bool = False) -> None:
+        cur = self.connection.cursor()
+
+        try:
+            cur.execute(f'''insert into songs (spotify_id, song_name, artist_name,
+                            danceability, acousticness, energy,
+                            depression, tempo, time_signature,
+                            telegram_from, telegram_name, created_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''',
+                            (song.spotify_id, song.song_name,
+                            song.artist_name, song.danceability, song.acousticness,
+                            song.energy, song.depression, song.tempo, song.time_signature,
+                            song.telegram_from, song.telegram_name, song.created_at))
+            if not no_commit:
+                self.connection.commit()
+        except Exception as e:
+            self.logger.error(f'Error with inserting {song.song_name}\n{e}')
+        finally:
+            cur.close()

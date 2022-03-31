@@ -45,11 +45,17 @@ def album_image(spotifyFacade: SpotifyFacade):
 
 
 def main() -> None:
-    config = Config('config.json')
-    updater = Updater(config.values['telegram_token'])
+    config = Config()
+    updater = Updater(config.telegram_token)
     
-    user_songs_repository = UserSongsRepository('jukebox.sqlite', logger)
-    spotifyFacade = SpotifyFacade(config.values['client_id'], config.values['client_secret'], "http://localhost:8888/callback")
+    user_songs_repository = None
+    if (true):
+        user_songs_repository = UserSongsRepository(logger, user=config.user, dbname=config.dbname,
+            password=config.password, host=config.host, port=config.port)
+    else:
+        user_songs_repository = UserSongsRepository(logger, path='jukebox.sqlite')
+
+    spotifyFacade = SpotifyFacade(config.client_id, config.values.client_secret, "http://localhost:8888/callback")
 
     dispatcher = updater.dispatcher
 

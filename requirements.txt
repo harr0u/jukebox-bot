@@ -1,3 +1,4 @@
 python-telegram-bot
 spotipy
 pytest
+psycopg2-binary
