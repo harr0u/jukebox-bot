@@ -55,7 +55,7 @@ def main() -> None:
     else:
         user_songs_repository = UserSongsRepository(logger, path='jukebox.sqlite')
 
-    spotifyFacade = SpotifyFacade(config.client_id, config.values.client_secret, "http://localhost:8888/callback")
+    spotifyFacade = SpotifyFacade(config.client_id, config.client_secret, "http://localhost:8888/callback")
 
     dispatcher = updater.dispatcher
 
