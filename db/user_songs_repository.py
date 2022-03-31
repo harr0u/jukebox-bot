@@ -85,6 +85,12 @@ class UserSongsRepositoryPostgres(UserSongsRepository):
         self.port = kwargs.get('port')
         self.setup_connection()
 
+        cursor = self.connection.cursor()
+        try:
+            migrate(cursor)
+        except Exception:
+            return
+
     def setup_psql_connection(self) -> None:
         connection = None
         try:
@@ -115,3 +121,19 @@ class UserSongsRepositoryPostgres(UserSongsRepository):
             self.logger.error(f'Error with inserting {song.song_name}\n{e}')
         finally:
             cur.close()
+
+
+def migrate(cursor) -> None:
+    cursor.execute(
+        f'''
+        CREATE TABLE songs(spotify_id text, song_name text, artist_name text, danceability real,
+              acousticness real, energy real, depression real, tempo real,
+              time_signature real, telegram_from text, telegram_name text, 
+              created_at DATE,
+              PRIMARY KEY (spotify_id, telegram_from));
+
+        CREATE TABLE jukebox_version(version integer);
+
+        INSERT INTO jukebox_version (version) values (3);
+          '''
+    )
